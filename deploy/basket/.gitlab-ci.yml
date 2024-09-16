@@ -1,0 +1,10 @@
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^stage/
+      changes:
+        - deploy/basket/**
+        - cmd/basket/**
+        - repository/mysql/basketrepo/**
+        - service/basket/**
+        - adapter/**
+        - pkg/**
