@@ -4,7 +4,7 @@ workflow:
       changes:
         - deploy/basket/**
         - cmd/basket/**
-        - repository/mysql/basketrepo/**
+        - repository/mysql/basket/**
         - service/basket/**
         - adapter/**
         - pkg/**
