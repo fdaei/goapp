@@ -26,7 +26,7 @@ func Load(configPath string) Config {
 			strings.TrimPrefix(s, "BEEHIVE_")), "_", ".", -1)
 
 		// TODO - this is just a workaround
-		// for multiword items such as "sign_key" that we should use like "GAMEAPP_AUTH_SIGN__KEY"
+		// for multiword items such as "sign_key" that we should use like "BEEHIVE_AUTH_SIGN__KEY"
 		// find a better solution if needed..
 		return strings.Replace(str, "..", "_", -1)
 	}), nil)

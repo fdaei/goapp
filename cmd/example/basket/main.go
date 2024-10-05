@@ -6,9 +6,8 @@ import (
 	"git.gocasts.ir/remenu/beehive/adapter/rabbitmq"
 	"git.gocasts.ir/remenu/beehive/config"
 	"git.gocasts.ir/remenu/beehive/event"
-	basketevent "git.gocasts.ir/remenu/beehive/example/delivery/basket/event"
-	"git.gocasts.ir/remenu/beehive/example/service/basket"
-	"git.gocasts.ir/remenu/beehive/example/service/payment"
+	"git.gocasts.ir/remenu/beehive/service/basket"
+	"git.gocasts.ir/remenu/beehive/service/payment"
 	"sync"
 	"time"
 )
@@ -18,7 +17,6 @@ func main() {
 	wg.Add(1)
 
 	cfg := config.Load("config.yml")
-	service := basket.New()
 	queue := "basket"
 
 	topics1 := []event.Topic{
@@ -50,7 +48,7 @@ func main() {
 		}
 	}()
 	go func() {
-		eventConsumer := basketevent.New(service, rabbitMQ1, rabbitMQ2)
+		eventConsumer := basket.NewEventConsumer(rabbitMQ1, rabbitMQ2)
 		eventConsumer.Start()
 		wg.Done()
 	}()
