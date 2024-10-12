@@ -1,0 +1,10 @@
+postgres-basket-db:
+  host: localhost
+  port: 5433
+  user: "basket_admin"
+  password: "password123"
+  dbName: basket_db
+  sslMode: disable
+  maxIdleConns: 15
+  maxOpenConns: 100
+  connMaxLifetime: 5  
