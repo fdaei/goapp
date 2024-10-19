@@ -1,4 +1,4 @@
 
 
-run:
-	go run cmd/main.go
+run_basket:
+	go run cmd/basket/main.go
