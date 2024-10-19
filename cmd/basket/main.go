@@ -3,38 +3,37 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 
-	"git.gocasts.ir/remenu/beehive/config"
-	basketpostgres "git.gocasts.ir/remenu/beehive/repository/postgresql/basket"
-	"github.com/knadh/koanf/parsers/yaml"
-	"github.com/knadh/koanf/providers/file"
-	"github.com/knadh/koanf/v2"
+	"git.gocasts.ir/remenu/beehive/pkg/postgresql"
+	"git.gocasts.ir/remenu/beehive/service/basket"
 )
 
-var k = koanf.New(".")
-
 func main() {
-
-	if err := k.Load(file.Provider("config/basket.yml"), yaml.Parser()); err != nil {
-		log.Fatalf("Error loading config: %v", err)
+	// Get current working directory
+	workingDir, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("Error getting current working directory: %v", err)
 	}
 
-	var cfg config.Config
-	if err := k.Unmarshal("", &cfg); err != nil {
-		log.Fatalf("Error unmarshalling config: %v", err)
-	}
+	//configPath := filepath.Join(workingDir, "deploy", "basket", "development", "config.yaml")
+	configPath := GetConfigPath(workingDir, "basket", "development")
+	basketCfg := basket.Load(configPath)
+	// show loaded config
+	fmt.Printf("Loaded config: %+v\n", basketCfg)
 
 	// Connect to database
-	conn, cnErr := basketpostgres.Connect(cfg.BasketDB)
+	conn, cnErr := postgresql.Connect(basketCfg.BasketPostgresDB)
 
 	if cnErr != nil {
 		log.Fatal(cnErr)
 	} else {
-		fmt.Printf("You are connected to %s successfully\n", cfg.BasketDB.DBName)
+		fmt.Printf("You are connected to %s successfully\n", basketCfg.BasketPostgresDB.DBName)
 	}
 
 	// Check example query to ensure that db works correctly
-	res, exErr := basketpostgres.ExampleQuery(conn.DB)
+	res, exErr := postgresql.ExampleQuery(conn.DB)
 	if exErr != nil {
 		log.Fatal(exErr)
 	} else {
@@ -42,6 +41,11 @@ func main() {
 	}
 
 	// Close the database connection
-	defer basketpostgres.Close(conn.DB)
+	defer postgresql.Close(conn.DB)
 
+}
+
+func GetConfigPath(workingDir, serviceName, environment string) string {
+
+	return filepath.Join(workingDir, "deploy", serviceName, environment, "config.yaml")
 }

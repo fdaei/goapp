@@ -1,19 +1,19 @@
-package basketpostgres
+package postgresql
 
 import (
 	"database/sql"
 	"fmt"
 	"time"
 
-	"git.gocasts.ir/remenu/beehive/config"
+	postgresql "git.gocasts.ir/remenu/beehive/pkg/postgresql/config"
 	_ "github.com/lib/pq"
 )
 
-type BasketDb struct {
+type Database struct {
 	DB *sql.DB
 }
 
-func Connect(config config.BasketDBConfig) (*BasketDb, error) {
+func Connect(config postgresql.Config) (*Database, error) {
 	conn, err := sql.Open("postgres", fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		config.Host,
@@ -28,7 +28,7 @@ func Connect(config config.BasketDBConfig) (*BasketDb, error) {
 	conn.SetMaxOpenConns(config.MaxOpenConns)
 	conn.SetMaxIdleConns(config.MaxIdleConns)
 
-	return &BasketDb{DB: conn}, err
+	return &Database{DB: conn}, err
 }
 
 func Close(conn *sql.DB) error {
@@ -43,7 +43,7 @@ func ExampleQuery(db *sql.DB) (string, error) {
 	var res string
 	err := db.QueryRow("SELECT version()").Scan(&res)
 	if err != nil {
-		return "", fmt.Errorf("Error executing query: %v", err)
+		return "", fmt.Errorf("error executing query: %v", err)
 	}
 	return res, nil
 }

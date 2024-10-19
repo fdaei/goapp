@@ -1,0 +1,43 @@
+version: '3'
+services:
+  rabbitmq:
+    image: registry.docker.ir/rabbitmq:3.12-management-alpine
+    container_name: rabbitmq-run1
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    restart: always
+    networks:
+      - remenu_network
+
+  basket-db:  
+    image: postgres:latest
+    container_name: remenu-basket-db
+    environment:
+      POSTGRES_DB: basket_db
+      POSTGRES_USER: "basket_admin"
+      POSTGRES_PASSWORD: "password123"
+    ports:
+      - "5433:5432"  
+    volumes:
+      - remenu_basket_db_data:/var/lib/postgresql/data
+    
+    restart: always
+    networks:
+      - remenu_network
+
+volumes:
+  remenu_basket_db_data:
+
+
+networks:
+  remenu_network:
+    driver: bridge  
