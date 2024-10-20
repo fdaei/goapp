@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	postgresql "git.gocasts.ir/remenu/beehive/pkg/postgresql/config"
 	_ "github.com/lib/pq"
 )
 
@@ -13,7 +12,7 @@ type Database struct {
 	DB *sql.DB
 }
 
-func Connect(config postgresql.Config) (*Database, error) {
+func Connect(config Config) (*Database, error) {
 	conn, err := sql.Open("postgres", fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		config.Host,

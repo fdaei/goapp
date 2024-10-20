@@ -3,17 +3,17 @@ package basket
 import (
 	"log"
 
-	postgresql "git.gocasts.ir/remenu/beehive/pkg/postgresql/config"
+	"git.gocasts.ir/remenu/beehive/pkg/postgresql"
 	"github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/v2"
 )
 
 type Config struct {
-	BasketServer struct {
+	Server struct {
 		Port string `koanf:"port"`
-	} `koanf:"basket-server"`
-	BasketPostgresDB postgresql.Config `koanf:"postgres-basket-db"`
+	} `koanf:"basket_server"`
+	PostgresDB postgresql.Config `koanf:"postgres_basket_db"`
 }
 
 func Load(configPath string) *Config {
