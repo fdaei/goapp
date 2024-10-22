@@ -3,13 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
+	"time"
+
 	"git.gocasts.ir/remenu/beehive/adapter/rabbitmq"
 	"git.gocasts.ir/remenu/beehive/config"
 	"git.gocasts.ir/remenu/beehive/event"
-	"git.gocasts.ir/remenu/beehive/service/basket"
 	"git.gocasts.ir/remenu/beehive/service/payment"
-	"sync"
-	"time"
 )
 
 func main() {
@@ -48,8 +48,8 @@ func main() {
 		}
 	}()
 	go func() {
-		eventConsumer := basket.NewEventConsumer(rabbitMQ1, rabbitMQ2)
-		eventConsumer.Start()
+		// eventConsumer := basket.NewEventConsumer(rabbitMQ1, rabbitMQ2)
+		// eventConsumer.Start()
 		wg.Done()
 	}()
 
