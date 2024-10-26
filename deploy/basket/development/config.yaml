@@ -1,6 +1,6 @@
-basket_server:
+server:
   port: 5000
-postgres_basket_db:
+postgres_db:
   host: localhost
   port: 5433
   user: "basket_admin"
