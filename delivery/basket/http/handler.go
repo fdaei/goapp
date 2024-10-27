@@ -1,4 +1,4 @@
-package http
+package baskethttp
 
 type Handler struct {
 }

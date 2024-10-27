@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	basketapp "git.gocasts.ir/remenu/beehive/application/basket"
 	cfgloader "git.gocasts.ir/remenu/beehive/pkg/cfg_loader"
 	"git.gocasts.ir/remenu/beehive/pkg/logger"
 	"git.gocasts.ir/remenu/beehive/pkg/postgresql"
@@ -66,5 +67,9 @@ func main() {
 
 	// Close the database connection
 	defer postgresql.Close(conn.DB)
+
+	// start application
+	app := basketapp.Setup(cfg)
+	app.Start()
 
 }
