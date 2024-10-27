@@ -9,4 +9,10 @@ postgres_db:
   ssl_mode: disable
   max_idle_conns: 15
   max_open_conns: 100
-  conn_max_lifetime: 5  
+  conn_max_lifetime: 5 
+logger:
+  file_path: "logs/basket/service.log"
+  use_local_time: true
+  file_max_size_in_mb: 10
+  file_max_age_in_days: 7
+

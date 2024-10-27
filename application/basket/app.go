@@ -1,6 +1,7 @@
 package basket
 
 import (
+	"log/slog"
 	netHTTP "net/http"
 
 	"git.gocasts.ir/remenu/beehive/delivery/basket/http"
@@ -16,6 +17,7 @@ type Application struct {
 	BasketRepo    basketrepo.BasketRepo
 	HTTPServer    netHTTP.Server
 	BasketCfg     basket.Config
+	basketLogger  *slog.Logger
 }
 
 func Setup(config basket.Config) Application {

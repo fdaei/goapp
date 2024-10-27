@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	cfgloader "git.gocasts.ir/remenu/beehive/pkg/cfg_loader"
+	"git.gocasts.ir/remenu/beehive/pkg/logger"
 	"git.gocasts.ir/remenu/beehive/pkg/postgresql"
 	"git.gocasts.ir/remenu/beehive/service/basket"
 )
@@ -34,6 +35,17 @@ func main() {
 
 	// show loaded config
 	fmt.Printf("Loaded config: %+v\n", cfg)
+
+	// Initialize the global logger
+	logger.Init(cfg.Logger)
+
+	// test basket logger
+	basketLogger := logger.L()
+
+	// Sample logs for test
+	basketLogger.Info("Service started", "service", "example_service", "version", "1.0.0")
+	basketLogger.Warn("Service response slow", "service", "example_service", "response_time", 200)
+	basketLogger.Error("Service failed", "service", "example_service", "error_code", 503)
 
 	// Connect to database
 	conn, cnErr := postgresql.Connect(cfg.PostgresDB)
