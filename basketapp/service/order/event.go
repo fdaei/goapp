@@ -2,7 +2,7 @@ package order
 
 import (
 	"git.gocasts.ir/remenu/beehive/event"
-	"git.gocasts.ir/remenu/beehive/payment_app/service"
+	payment "git.gocasts.ir/remenu/beehive/paymentapp/service"
 )
 
 func NewEventConsumer(consumers ...event.Consumer) event.EventConsumer {

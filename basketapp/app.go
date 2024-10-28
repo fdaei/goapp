@@ -3,10 +3,10 @@ package basketapp
 import (
 	"log/slog"
 
-	basketrepo "git.gocasts.ir/remenu/beehive/basket_app/repository/basket"
-	"git.gocasts.ir/remenu/beehive/basket_app/service/basket"
-	"git.gocasts.ir/remenu/beehive/basket_app/service/order"
-	baskethttp "git.gocasts.ir/remenu/beehive/basketapp/delivery/http/basket"
+	"git.gocasts.ir/remenu/beehive/basketapp/delivery/http"
+	"git.gocasts.ir/remenu/beehive/basketapp/repository"
+	"git.gocasts.ir/remenu/beehive/basketapp/service/basket"
+	"git.gocasts.ir/remenu/beehive/basketapp/service/order"
 	httpserver "git.gocasts.ir/remenu/beehive/pkg/http_server"
 	"git.gocasts.ir/remenu/beehive/pkg/logger"
 )
@@ -14,20 +14,21 @@ import (
 type Application struct {
 	BasketSvc     basket.Service
 	OrderSvc      order.Service
-	BasketHandler baskethttp.Handler
-	BasketRepo    basketrepo.BasketRepo
-	HTTPServer    *baskethttp.Server
-	BasketCfg     basket.Config
+	BasketHandler http.Handler
+	BasketRepo    repository.BasketRepo
+	HTTPServer    *http.Server
+	BasketCfg     Config
 	basketLogger  *slog.Logger
 }
 
-func Setup(config basket.Config) Application {
+func Setup(config Config) Application {
 	// create application struct with all dependencies(repo, broker, delivery)
 	// register routes
 
 	return Application{
-		HTTPServer:   baskethttp.New(*httpserver.New(config.Server)),
+		HTTPServer:   http.New(*httpserver.New(config.Server)),
 		basketLogger: logger.L(),
+		BasketCfg:    config,
 	}
 }
 

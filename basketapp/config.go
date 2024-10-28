@@ -3,6 +3,7 @@ package basketapp
 import (
 	"git.gocasts.ir/remenu/beehive/basketapp/service/basket"
 	"git.gocasts.ir/remenu/beehive/basketapp/service/order"
+	httpserver "git.gocasts.ir/remenu/beehive/pkg/http_server"
 	"git.gocasts.ir/remenu/beehive/pkg/logger"
 	"git.gocasts.ir/remenu/beehive/pkg/postgresql"
 )
@@ -10,9 +11,7 @@ import (
 type Config struct {
 	BasketSvcCfg basket.Config
 	OrderSvcCfg  order.Config
-	Server       struct {
-		Port string `koanf:"port"`
-	} `koanf:"server"`
-	PostgresDB postgresql.Config `koanf:"basket_postgres_db"`
-	Logger     logger.Config     `koanf:"logger"`
+	Server       httpserver.Config `koanf:"server"`
+	PostgresDB   postgresql.Config `koanf:"postgres_db"`
+	Logger       logger.Config     `koanf:"logger"`
 }

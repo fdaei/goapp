@@ -1,12 +1,11 @@
 package basket
 
 import (
-	basketrepo "git.gocasts.ir/remenu/beehive/basket_app/repository/basket"
 	"git.gocasts.ir/remenu/beehive/event"
-	payment "git.gocasts.ir/remenu/beehive/payment_app/service"
+	payment "git.gocasts.ir/remenu/beehive/paymentapp/service"
 )
 
-func NewEventConsumer(repo basketrepo.Repository, consumers ...event.Consumer) event.EventConsumer {
+func NewEventConsumer(repo Repository, consumers ...event.Consumer) event.EventConsumer {
 	s := NewBasketService(repo)
 
 	return event.EventConsumer{

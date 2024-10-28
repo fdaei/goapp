@@ -1,42 +1,51 @@
 package basket
 
 import (
+	"database/sql"
 	"fmt"
 
 	"git.gocasts.ir/remenu/beehive/event"
-	basketmodel "git.gocasts.ir/remenu/beehive/basket_app/model/basket"
-	basketrepo "git.gocasts.ir/remenu/beehive/basket_app/repository/basket"
 )
+
+// BasketRepository defines the operations related to basket, supporting both Redis and PostgreSQL
+type Repository interface {
+	Create(basket Basket) (sql.Result, error)
+	Update(basket Basket) (sql.Result, error)
+	Delete(id uint) (sql.Result, error)
+	List() ([]Basket, error)
+	CacheBasket(basket Basket) error
+	GetCachedBasket(id uint) (Basket, error)
+}
 
 // Service defines the operations related to basket
 type Service interface {
-	CreateBasket(basket basketmodel.Basket) (uint, error)
-	UpdateBasket(basket basketmodel.Basket) error
+	CreateBasket(basket Basket) (uint, error)
+	UpdateBasket(basket Basket) error
 	DeleteBasket(id uint) error
-	ListBaskets() ([]basketmodel.Basket, error)
-	GetBasketById(id uint) (basketmodel.Basket, error)
-	GetBasketItemsById(id uint) ([]basketmodel.BasketItem, error)
-	CacheBasket(basket basketmodel.Basket) error
-	GetCachedBasket(id uint) (basketmodel.Basket, error)
+	ListBaskets() ([]Basket, error)
+	GetBasketById(id uint) (Basket, error)
+	GetBasketItemsById(id uint) ([]BasketItem, error)
+	CacheBasket(basket Basket) error
+	GetCachedBasket(id uint) (Basket, error)
 	PurchaseSucceedHandler(event event.Event) error
-	PurchaseFailedHandler(event event.Event) error 
+	PurchaseFailedHandler(event event.Event) error
 }
 
 // BasketService is the concrete implementation of Service
 type BasketService struct {
-	BasketRepo basketrepo.Repository
+	repository Repository
 }
 
 // NewBasketService creates a new instance of BasketService
-func NewBasketService(repo basketrepo.Repository) Service {
+func NewBasketService(repo Repository) Service {
 	return &BasketService{
-		BasketRepo: repo,
+		repository: repo,
 	}
 }
 
 // CreateBasket creates a new basket
-func (s *BasketService) CreateBasket(basket basketmodel.Basket) (uint, error) {
-	result, err := s.BasketRepo.Create(basket)
+func (s *BasketService) CreateBasket(basket Basket) (uint, error) {
+	result, err := s.repository.Create(basket)
 	if err != nil {
 		return 0, fmt.Errorf("error creating basket: %v", err)
 	}
@@ -48,8 +57,8 @@ func (s *BasketService) CreateBasket(basket basketmodel.Basket) (uint, error) {
 }
 
 // UpdateBasket updates an existing basket
-func (s *BasketService) UpdateBasket(basket basketmodel.Basket) error {
-	_, err := s.BasketRepo.Update(basket)
+func (s *BasketService) UpdateBasket(basket Basket) error {
+	_, err := s.repository.Update(basket)
 	if err != nil {
 		return fmt.Errorf("error updating basket: %v", err)
 	}
@@ -58,7 +67,7 @@ func (s *BasketService) UpdateBasket(basket basketmodel.Basket) error {
 
 // DeleteBasket deletes a basket by ID
 func (s *BasketService) DeleteBasket(id uint) error {
-	_, err := s.BasketRepo.Delete(id)
+	_, err := s.repository.Delete(id)
 	if err != nil {
 		return fmt.Errorf("error deleting basket: %v", err)
 	}
@@ -66,8 +75,8 @@ func (s *BasketService) DeleteBasket(id uint) error {
 }
 
 // ListBaskets returns all baskets
-func (s *BasketService) ListBaskets() ([]basketmodel.Basket, error) {
-	baskets, err := s.BasketRepo.List()
+func (s *BasketService) ListBaskets() ([]Basket, error) {
+	baskets, err := s.repository.List()
 	if err != nil {
 		return nil, fmt.Errorf("error listing baskets: %v", err)
 	}
@@ -75,17 +84,17 @@ func (s *BasketService) ListBaskets() ([]basketmodel.Basket, error) {
 }
 
 // GetBasketById retrieves a basket by its ID
-func (s *BasketService) GetBasketById(id uint) (basketmodel.Basket, error) {
-	basket, err := s.BasketRepo.GetCachedBasket(id)
+func (s *BasketService) GetBasketById(id uint) (Basket, error) {
+	basket, err := s.repository.GetCachedBasket(id)
 	if err == nil {
 		// Basket found in cache
 		return basket, nil
 	}
 
 	// If not found in cache, retrieve from PostgreSQL
-	basketList, err := s.BasketRepo.List()
+	basketList, err := s.repository.List()
 	if err != nil {
-		return basketmodel.Basket{}, fmt.Errorf("error retrieving basket: %v", err)
+		return Basket{}, fmt.Errorf("error retrieving basket: %v", err)
 	}
 	for _, b := range basketList {
 		if b.ID == id {
@@ -93,17 +102,17 @@ func (s *BasketService) GetBasketById(id uint) (basketmodel.Basket, error) {
 		}
 	}
 
-	return basketmodel.Basket{}, fmt.Errorf("basket not found")
+	return Basket{}, fmt.Errorf("basket not found")
 }
 
-func (s *BasketService) GetBasketItemsById(id uint) ([]basketmodel.BasketItem, error) {
+func (s *BasketService) GetBasketItemsById(id uint) ([]BasketItem, error) {
 	// TODO: complete this section
-	return []basketmodel.BasketItem{}, nil
+	return []BasketItem{}, nil
 }
 
 // CacheBasket caches a basket in Redis
-func (s *BasketService) CacheBasket(basket basketmodel.Basket) error {
-	err := s.BasketRepo.CacheBasket(basket)
+func (s *BasketService) CacheBasket(basket Basket) error {
+	err := s.repository.CacheBasket(basket)
 	if err != nil {
 		return fmt.Errorf("error caching basket: %v", err)
 	}
@@ -111,10 +120,10 @@ func (s *BasketService) CacheBasket(basket basketmodel.Basket) error {
 }
 
 // GetCachedBasket retrieves a basket from Redis by its ID
-func (s *BasketService) GetCachedBasket(id uint) (basketmodel.Basket, error) {
-	basket, err := s.BasketRepo.GetCachedBasket(id)
+func (s *BasketService) GetCachedBasket(id uint) (Basket, error) {
+	basket, err := s.repository.GetCachedBasket(id)
 	if err != nil {
-		return basketmodel.Basket{}, fmt.Errorf("error retrieving cached basket: %v", err)
+		return Basket{}, fmt.Errorf("error retrieving cached basket: %v", err)
 	}
 	return basket, nil
 }
