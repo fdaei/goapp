@@ -3,12 +3,12 @@ package basketapp
 import (
 	"log/slog"
 
-	baskethttp "git.gocasts.ir/remenu/beehive/delivery/basket/http"
+	baskethttp "git.gocasts.ir/remenu/beehive/basket_app/delivery/http/basket"
+	basketrepo "git.gocasts.ir/remenu/beehive/basket_app/repository/basket"
+	"git.gocasts.ir/remenu/beehive/basket_app/service/basket"
+	"git.gocasts.ir/remenu/beehive/basket_app/service/order"
 	httpserver "git.gocasts.ir/remenu/beehive/pkg/http_server"
 	"git.gocasts.ir/remenu/beehive/pkg/logger"
-	"git.gocasts.ir/remenu/beehive/service/basket"
-	basketrepo "git.gocasts.ir/remenu/beehive/service/basket/repository"
-	"git.gocasts.ir/remenu/beehive/service/order"
 )
 
 type Application struct {

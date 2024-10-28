@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"git.gocasts.ir/remenu/beehive/event"
-	basketmodel "git.gocasts.ir/remenu/beehive/service/basket/model"
-	basketrepo "git.gocasts.ir/remenu/beehive/service/basket/repository"
+	basketmodel "git.gocasts.ir/remenu/beehive/basket_app/model/basket"
+	basketrepo "git.gocasts.ir/remenu/beehive/basket_app/repository/basket"
 )
 
 // Service defines the operations related to basket

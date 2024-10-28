@@ -6,11 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	basketapp "git.gocasts.ir/remenu/beehive/application/basket"
+	basketapp "git.gocasts.ir/remenu/beehive/basket_app/application"
+	"git.gocasts.ir/remenu/beehive/basket_app/service/basket"
 	cfgloader "git.gocasts.ir/remenu/beehive/pkg/cfg_loader"
 	"git.gocasts.ir/remenu/beehive/pkg/logger"
 	"git.gocasts.ir/remenu/beehive/pkg/postgresql"
-	"git.gocasts.ir/remenu/beehive/service/basket"
 )
 
 var cfg basket.Config

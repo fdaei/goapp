@@ -9,7 +9,7 @@ import (
 	"git.gocasts.ir/remenu/beehive/adapter/rabbitmq"
 	"git.gocasts.ir/remenu/beehive/config"
 	"git.gocasts.ir/remenu/beehive/event"
-	"git.gocasts.ir/remenu/beehive/service/payment"
+	payment "git.gocasts.ir/remenu/beehive/payment_app/service"
 )
 
 func main() {

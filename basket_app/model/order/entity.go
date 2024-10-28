@@ -1,4 +1,4 @@
-package order
+package ordermodel
 
 type Basket struct {
 }

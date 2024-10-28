@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	basketmodel "git.gocasts.ir/remenu/beehive/service/basket/model"
+	basketmodel "git.gocasts.ir/remenu/beehive/basket_app/model/basket"
 	"github.com/redis/go-redis/v9"
 )
 

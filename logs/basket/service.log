@@ -31,3 +31,6 @@
 {"time":"2024-10-27T15:10:07.169641964+03:30","level":"INFO","msg":"Service started","service":"example_service","version":"1.0.0"}
 {"time":"2024-10-27T15:10:07.169800682+03:30","level":"WARN","msg":"Service response slow","service":"example_service","response_time":200}
 {"time":"2024-10-27T15:10:07.169814969+03:30","level":"ERROR","msg":"Service failed","service":"example_service","error_code":503}
+{"time":"2024-10-28T10:26:18.106239704+03:30","level":"INFO","msg":"Service started","service":"example_service","version":"1.0.0"}
+{"time":"2024-10-28T10:26:18.106560204+03:30","level":"WARN","msg":"Service response slow","service":"example_service","response_time":200}
+{"time":"2024-10-28T10:26:18.106573031+03:30","level":"ERROR","msg":"Service failed","service":"example_service","error_code":503}
