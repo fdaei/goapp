@@ -6,14 +6,13 @@ import (
 	"os"
 	"path/filepath"
 
-	basketapp "git.gocasts.ir/remenu/beehive/basket_app/application"
-	"git.gocasts.ir/remenu/beehive/basket_app/service/basket"
+	"git.gocasts.ir/remenu/beehive/basketapp"
 	cfgloader "git.gocasts.ir/remenu/beehive/pkg/cfg_loader"
 	"git.gocasts.ir/remenu/beehive/pkg/logger"
 	"git.gocasts.ir/remenu/beehive/pkg/postgresql"
 )
 
-var cfg basket.Config
+var cfg basketapp.Config
 
 func main() {
 	// Get current working directory

@@ -3,10 +3,10 @@ package basketapp
 import (
 	"log/slog"
 
-	baskethttp "git.gocasts.ir/remenu/beehive/basket_app/delivery/http/basket"
 	basketrepo "git.gocasts.ir/remenu/beehive/basket_app/repository/basket"
 	"git.gocasts.ir/remenu/beehive/basket_app/service/basket"
 	"git.gocasts.ir/remenu/beehive/basket_app/service/order"
+	baskethttp "git.gocasts.ir/remenu/beehive/basketapp/delivery/http/basket"
 	httpserver "git.gocasts.ir/remenu/beehive/pkg/http_server"
 	"git.gocasts.ir/remenu/beehive/pkg/logger"
 )

@@ -1,4 +1,4 @@
-package baskethttp
+package http
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-package basketmodel
+package basket
 
 import "time"
 
