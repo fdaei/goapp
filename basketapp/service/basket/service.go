@@ -130,6 +130,7 @@ func (s *BasketService) GetCachedBasket(id uint) (Basket, error) {
 
 func (s *BasketService) PurchaseSucceedHandler(event event.Event) error {
 	fmt.Println("PurchaseSucceedHandler")
+	// TODO: add transaction to create and outbox Event Message and publish notify event
 	return nil
 }
 

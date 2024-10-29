@@ -17,8 +17,8 @@ type BasketRepo struct {
 }
 
 // NewBasketRepo creates a new instance of BasketRepo with PostgreSQL and Redis connections
-func NewBasketRepo(db *sql.DB, redis *redis.Client) basket.Repository {
-	return &BasketRepo{
+func NewBasketRepo(db *sql.DB, redis *redis.Client) BasketRepo {
+	return BasketRepo{
 		PostgreSQL: db,
 		Redis:      redis,
 	}
