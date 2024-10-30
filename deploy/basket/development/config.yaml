@@ -1,6 +1,8 @@
-basket_server:
+server:
   port: 5000
-postgres_basket_db:
+  cors:
+    allow_origins: "*"  
+postgres_db:
   host: localhost
   port: 5433
   user: "basket_admin"
@@ -9,4 +11,17 @@ postgres_basket_db:
   ssl_mode: disable
   max_idle_conns: 15
   max_open_conns: 100
-  conn_max_lifetime: 5  
+  conn_max_lifetime: 5 
+logger:
+  file_path: "logs/basket/service.log"
+  use_local_time: true
+  file_max_size_in_mb: 10
+  file_max_age_in_days: 7
+outbox_scheduler:
+  interval_in_seconds: 5
+rabbitmq:
+  port: 5672
+  host: "localhost"
+  username: "admin"
+  password: "admin"
+
