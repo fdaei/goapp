@@ -5,7 +5,12 @@ import (
 	"os"
 	"path/filepath"
 
+	"git.gocasts.ir/remenu/beehive/adapter/rabbitmq"
 	"git.gocasts.ir/remenu/beehive/basketapp"
+	"git.gocasts.ir/remenu/beehive/basketapp/repository"
+	"git.gocasts.ir/remenu/beehive/event"
+	"git.gocasts.ir/remenu/beehive/outbox"
+	payment "git.gocasts.ir/remenu/beehive/paymentapp/service"
 	cfgloader "git.gocasts.ir/remenu/beehive/pkg/cfg_loader"
 	"git.gocasts.ir/remenu/beehive/pkg/postgresql"
 )
@@ -46,8 +51,14 @@ func main() {
 	// Close the database connection
 	defer postgresql.Close(conn.DB)
 
-	// start application
-	app := basketapp.Setup(cfg, conn)
-	app.Start()
+	outBoxRepo := repository.NewOutBoxRepo(conn.DB)
 
+	queue := "basket"
+	topics1 := []event.Topic{
+		payment.PurchaseSucceedTopic,
+	}
+	rabbitMQ := rabbitmq.New(cfg.RabbitMQ, queue, topics1)
+
+	sch := outbox.New(outBoxRepo, rabbitMQ, cfg.OutboxScheduler)
+	sch.Start()
 }
