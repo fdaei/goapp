@@ -18,7 +18,9 @@ logger:
   file_max_size_in_mb: 10
   file_max_age_in_days: 7
 outbox_scheduler:
-  interval_in_seconds: 5
+  interval_in_seconds: 60
+  retry_threshold: 5
+  batch_size: 100
 rabbitmq:
   port: 5672
   host: "localhost"

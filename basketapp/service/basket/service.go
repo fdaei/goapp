@@ -3,6 +3,7 @@ package basket
 import (
 	"database/sql"
 	"fmt"
+	"git.gocasts.ir/remenu/beehive/types"
 
 	"git.gocasts.ir/remenu/beehive/event"
 )
@@ -14,7 +15,7 @@ type Repository interface {
 	Delete(id uint) (sql.Result, error)
 	List() ([]Basket, error)
 	CacheBasket(basket Basket) error
-	GetCachedBasket(id uint) (Basket, error)
+	GetCachedBasket(id types.ID) (Basket, error)
 }
 
 // Service is the concrete implementation of Service
@@ -70,7 +71,7 @@ func (s Service) ListBaskets() ([]Basket, error) {
 }
 
 // GetBasketById retrieves a basket by its ID
-func (s Service) GetBasketById(id uint) (Basket, error) {
+func (s Service) GetBasketById(id types.ID) (Basket, error) {
 	basket, err := s.repository.GetCachedBasket(id)
 	if err == nil {
 		// Basket found in cache
@@ -106,7 +107,7 @@ func (s Service) CacheBasket(basket Basket) error {
 }
 
 // GetCachedBasket retrieves a basket from Redis by its ID
-func (s Service) GetCachedBasket(id uint) (Basket, error) {
+func (s Service) GetCachedBasket(id types.ID) (Basket, error) {
 	basket, err := s.repository.GetCachedBasket(id)
 	if err != nil {
 		return Basket{}, fmt.Errorf("error retrieving cached basket: %v", err)

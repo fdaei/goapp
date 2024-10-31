@@ -6,7 +6,7 @@ import (
 )
 
 func NewEventConsumer(repo Repository, consumers ...event.Consumer) event.EventConsumer {
-	s := NewBasketService(repo)
+	s := NewService(repo)
 
 	return event.EventConsumer{
 		Consumers: consumers,

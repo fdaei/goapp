@@ -5,6 +5,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"git.gocasts.ir/remenu/beehive/outbox"
+	"git.gocasts.ir/remenu/beehive/types"
+	"time"
 
 	"git.gocasts.ir/remenu/beehive/basketapp/service/basket"
 	"github.com/redis/go-redis/v9"
@@ -101,4 +104,32 @@ func (repo *BasketRepo) GetCachedBasket(id uint) (basket.Basket, error) {
 		return b, fmt.Errorf("error unmarshaling cached basket data: %v", err)
 	}
 	return b, nil
+}
+
+// TODO: should be more precise for specific use case like (updateing basket record and create outBoxEvent in a transaction).
+// below function is just a sample just for creating OutBoxEvent and is incompelete
+func (repo *BasketRepo) CreateOutBox(ctx context.Context, outBoxEvent outbox.Event) (types.ID, error) {
+
+	// TODO: use from sqlc
+	var resultID types.ID
+	query := "INSERT INTO outbox_events (id, topic, payload, is_published, retried_count, last_retried_at, published_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id"
+
+	// Use QueryRow to retrieve the resultID from RETURNING
+	err := repo.PostgreSQL.QueryRowContext(
+		ctx,
+		query,
+		outBoxEvent.ID,
+		outBoxEvent.Topic,
+		outBoxEvent.Payload,
+		outBoxEvent.IsPublished,
+		0,           // retried_count initialized to 0
+		time.Time{}, // last_retried_at initialized as zero timestamp
+		time.Time{}, // published_at initialized as zero timestamp
+	).Scan(&resultID)
+
+	if err != nil {
+		return 0, fmt.Errorf("error creating outbox event: %v", err)
+	}
+
+	return resultID, nil
 }
