@@ -5,22 +5,23 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"git.gocasts.ir/remenu/beehive/outbox"
 	"git.gocasts.ir/remenu/beehive/types"
-	"time"
 
 	"git.gocasts.ir/remenu/beehive/basketapp/service/basket"
 	"github.com/redis/go-redis/v9"
 )
 
-// BasketRepo is the concrete implementation of the BasketRepository
+// BasketRepo is the concrete implementation of the service.Repository interface
 type BasketRepo struct {
 	PostgreSQL *sql.DB       // PostgreSQL connection
 	Redis      *redis.Client // Redis client connection
 }
 
 // NewBasketRepo creates a new instance of BasketRepo with PostgreSQL and Redis connections
-func NewBasketRepo(db *sql.DB, redis *redis.Client) BasketRepo {
+func NewBasketRepo(db *sql.DB, redis *redis.Client) basket.Repository {
 	return BasketRepo{
 		PostgreSQL: db,
 		Redis:      redis,
@@ -28,39 +29,50 @@ func NewBasketRepo(db *sql.DB, redis *redis.Client) BasketRepo {
 }
 
 // Create inserts a new basket into PostgreSQL
-func (repo *BasketRepo) Create(basket basket.Basket) (sql.Result, error) {
+func (repo BasketRepo) Create(ctx context.Context, basket basket.Basket) (types.ID, error) {
 
 	// TODO: use from sqlc
-	query := "INSERT INTO baskets (user_id, restaurant_id, expiration_time, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)"
-	result, err := repo.PostgreSQL.Exec(query, basket.UserID, basket.RestaurantID, basket.ExpirationTime, basket.CreatedAt, basket.UpdatedAt)
+	query := "INSERT INTO baskets (user_id, restaurant_id, expiration_time, created_at, updated_at) VALUES ($1, $2, $3, $4, $5) RETURNING id"
+	var id types.ID
+	err := repo.PostgreSQL.QueryRowContext(ctx, query, basket.UserID, basket.RestaurantID, basket.ExpirationTime, basket.CreatedAt, basket.UpdatedAt).Scan(&id)
 	if err != nil {
-		return nil, fmt.Errorf("error creating basket: %v", err)
+		return 0, fmt.Errorf("error creating basket: %v", err)
 	}
-	return result, nil
+	return id, nil
 }
 
 // Update updates an existing basket in PostgreSQL
-func (repo *BasketRepo) Update(basket basket.Basket) (sql.Result, error) {
+func (repo BasketRepo) Update(ctx context.Context, basket basket.Basket) (types.ID, error) {
 	query := "UPDATE baskets SET restaurant_id=$1, expiration_time=$2, updated_at=$3 WHERE id=$4"
-	result, err := repo.PostgreSQL.Exec(query, basket.RestaurantID, basket.ExpirationTime, basket.UpdatedAt, basket.ID)
+	_, err := repo.PostgreSQL.ExecContext(ctx, query, basket.RestaurantID, basket.ExpirationTime, basket.UpdatedAt, basket.ID)
 	if err != nil {
-		return nil, fmt.Errorf("error updating basket: %v", err)
+		return 0, fmt.Errorf("error updating basket: %v", err)
 	}
-	return result, nil
+	return basket.ID, nil
 }
 
 // Delete removes a basket from PostgreSQL
-func (repo *BasketRepo) Delete(id uint) (sql.Result, error) {
-	query := "DELETE FROM baskets WHERE id=$1"
-	result, err := repo.PostgreSQL.Exec(query, id)
+func (repo BasketRepo) Delete(ctx context.Context, id types.ID) (bool, error) {
+	var exists bool
+	query := "SELECT EXISTS(SELECT 1 FROM baskets WHERE id=$1)"
+	err := repo.PostgreSQL.QueryRowContext(ctx, query, id).Scan(&exists)
 	if err != nil {
-		return nil, fmt.Errorf("error deleting basket: %v", err)
+		return false, fmt.Errorf("error checking basket existence: %v", err)
 	}
-	return result, nil
+
+	if !exists {
+		return false, nil
+	}
+	deleteQuery := "DELETE FROM baskets WHERE id=$1"
+	_, err = repo.PostgreSQL.ExecContext(ctx, deleteQuery, id)
+	if err != nil {
+		return false, fmt.Errorf("error deleting basket: %v", err)
+	}
+	return true, nil
 }
 
 // List retrieves all baskets from PostgreSQL
-func (repo *BasketRepo) List() ([]basket.Basket, error) {
+func (repo BasketRepo) List(ctx context.Context) ([]basket.Basket, error) {
 	query := "SELECT id, user_id, restaurant_id, expiration_time, created_at, updated_at FROM baskets"
 	rows, err := repo.PostgreSQL.Query(query)
 	if err != nil {
@@ -81,7 +93,7 @@ func (repo *BasketRepo) List() ([]basket.Basket, error) {
 }
 
 // CacheBasket stores a basket in Redis
-func (repo *BasketRepo) CacheBasket(basket basket.Basket) error {
+func (repo BasketRepo) CacheBasket(ctx context.Context, basket basket.Basket) error {
 	basketData, err := json.Marshal(basket)
 	if err != nil {
 		return fmt.Errorf("error marshaling basket data for Redis: %v", err)
@@ -94,7 +106,7 @@ func (repo *BasketRepo) CacheBasket(basket basket.Basket) error {
 }
 
 // GetCachedBasket retrieves a cached basket from Redis
-func (repo *BasketRepo) GetCachedBasket(id uint) (basket.Basket, error) {
+func (repo BasketRepo) GetCachedBasket(ctx context.Context, id types.ID) (basket.Basket, error) {
 	var b basket.Basket
 	basketData, err := repo.Redis.Get(context.Background(), fmt.Sprintf("basket:%d", id)).Result()
 	if err != nil {
@@ -108,7 +120,7 @@ func (repo *BasketRepo) GetCachedBasket(id uint) (basket.Basket, error) {
 
 // TODO: should be more precise for specific use case like (updateing basket record and create outBoxEvent in a transaction).
 // below function is just a sample just for creating OutBoxEvent and is incompelete
-func (repo *BasketRepo) CreateOutBox(ctx context.Context, outBoxEvent outbox.Event) (types.ID, error) {
+func (repo BasketRepo) CreateOutBox(ctx context.Context, outBoxEvent outbox.Event) (types.ID, error) {
 
 	// TODO: use from sqlc
 	var resultID types.ID

@@ -43,3 +43,12 @@
 {"time":"2024-10-31T17:40:09.084701404+03:30","level":"INFO","msg":"Service started","service":"example_service","version":"1.0.0"}
 {"time":"2024-10-31T17:40:09.088113532+03:30","level":"WARN","msg":"Service response slow","service":"example_service","response_time":200}
 {"time":"2024-10-31T17:40:09.088123324+03:30","level":"ERROR","msg":"Service failed","service":"example_service","error_code":503}
+{"time":"2024-11-02T11:43:08.238972346+03:30","level":"INFO","msg":"Service started","service":"example_service","version":"1.0.0"}
+{"time":"2024-11-02T11:43:08.239120454+03:30","level":"WARN","msg":"Service response slow","service":"example_service","response_time":200}
+{"time":"2024-11-02T11:43:08.239136453+03:30","level":"ERROR","msg":"Service failed","service":"example_service","error_code":503}
+{"time":"2024-11-02T15:06:51.021618415+03:30","level":"INFO","msg":"Service started","service":"example_service","version":"1.0.0"}
+{"time":"2024-11-02T15:06:51.021733663+03:30","level":"WARN","msg":"Service response slow","service":"example_service","response_time":200}
+{"time":"2024-11-02T15:06:51.021753189+03:30","level":"ERROR","msg":"Service failed","service":"example_service","error_code":503}
+{"time":"2024-11-02T15:46:20.617037437+03:30","level":"INFO","msg":"Service started","service":"example_service","version":"1.0.0"}
+{"time":"2024-11-02T15:46:20.617173195+03:30","level":"WARN","msg":"Service response slow","service":"example_service","response_time":200}
+{"time":"2024-11-02T15:46:20.617188506+03:30","level":"ERROR","msg":"Service failed","service":"example_service","error_code":503}

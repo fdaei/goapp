@@ -3,5 +3,6 @@
 
 .env
 .vscode/
+**/__debug*
 
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -67,8 +68,12 @@ func main() {
 	// Close the database connection
 	defer postgresql.Close(conn.DB)
 
+	// Add context
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	// start application
-	app := basketapp.Setup(cfg, conn)
+	app := basketapp.Setup(ctx, cfg, conn)
 	app.Start()
 
 }

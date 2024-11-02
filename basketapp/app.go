@@ -1,6 +1,9 @@
 package basketapp
 
 import (
+	"context"
+	"log/slog"
+
 	"git.gocasts.ir/remenu/beehive/basketapp/delivery/http"
 	"git.gocasts.ir/remenu/beehive/basketapp/repository"
 	"git.gocasts.ir/remenu/beehive/basketapp/service/basket"
@@ -8,10 +11,10 @@ import (
 	httpserver "git.gocasts.ir/remenu/beehive/pkg/http_server"
 	"git.gocasts.ir/remenu/beehive/pkg/logger"
 	"git.gocasts.ir/remenu/beehive/pkg/postgresql"
-	"log/slog"
 )
 
 type Application struct {
+	Ctx           context.Context
 	BasketSvc     basket.Service
 	OrderSvc      order.Service
 	BasketHandler http.Handler
@@ -21,11 +24,12 @@ type Application struct {
 	basketLogger  *slog.Logger
 }
 
-func Setup(config Config, conn *postgresql.Database) Application {
+func Setup(ctx context.Context, config Config, conn *postgresql.Database) Application {
 	// create application struct with all dependencies(repo, broker, delivery)
 	// register routes
 
 	return Application{
+		Ctx:          ctx,
 		HTTPServer:   http.New(*httpserver.New(config.Server)),
 		basketLogger: logger.L(),
 		BasketCfg:    config,

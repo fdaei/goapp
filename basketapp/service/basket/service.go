@@ -1,8 +1,9 @@
 package basket
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
+
 	"git.gocasts.ir/remenu/beehive/types"
 
 	"git.gocasts.ir/remenu/beehive/event"
@@ -10,12 +11,12 @@ import (
 
 // Repository defines the operations related to basket, supporting both Redis and PostgreSQL
 type Repository interface {
-	Create(basket Basket) (uint64, error)
-	Update(basket Basket) (sql.Result, error)
-	Delete(id uint) (sql.Result, error)
-	List() ([]Basket, error)
-	CacheBasket(basket Basket) error
-	GetCachedBasket(id types.ID) (Basket, error)
+	Create(ctx context.Context, basket Basket) (types.ID, error)
+	Update(ctx context.Context, basket Basket) (types.ID, error)
+	Delete(ctx context.Context, id types.ID) (bool, error)
+	List(ctx context.Context) ([]Basket, error)
+	CacheBasket(ctx context.Context, basket Basket) error
+	GetCachedBasket(ctx context.Context, id types.ID) (Basket, error)
 }
 
 // Service is the concrete implementation of Service
@@ -31,8 +32,8 @@ func NewService(repo Repository) Service {
 }
 
 // CreateBasket creates a new basket
-func (s Service) CreateBasket(basket Basket) (uint, error) {
-	id, err := s.repository.Create(basket)
+func (s Service) CreateBasket(ctx context.Context, basket Basket) (uint, error) {
+	id, err := s.repository.Create(ctx, basket)
 	if err != nil {
 		return 0, fmt.Errorf("error creating basket: %v", err)
 	}
@@ -44,8 +45,8 @@ func (s Service) CreateBasket(basket Basket) (uint, error) {
 }
 
 // UpdateBasket updates an existing basket
-func (s Service) UpdateBasket(basket Basket) error {
-	_, err := s.repository.Update(basket)
+func (s Service) UpdateBasket(ctx context.Context, basket Basket) error {
+	_, err := s.repository.Update(ctx, basket)
 	if err != nil {
 		return fmt.Errorf("error updating basket: %v", err)
 	}
@@ -53,8 +54,8 @@ func (s Service) UpdateBasket(basket Basket) error {
 }
 
 // DeleteBasket deletes a basket by ID
-func (s Service) DeleteBasket(id uint) error {
-	_, err := s.repository.Delete(id)
+func (s Service) DeleteBasket(ctx context.Context, id types.ID) error {
+	_, err := s.repository.Delete(ctx, id)
 	if err != nil {
 		return fmt.Errorf("error deleting basket: %v", err)
 	}
@@ -62,8 +63,8 @@ func (s Service) DeleteBasket(id uint) error {
 }
 
 // ListBaskets returns all baskets
-func (s Service) ListBaskets() ([]Basket, error) {
-	baskets, err := s.repository.List()
+func (s Service) ListBaskets(ctx context.Context) ([]Basket, error) {
+	baskets, err := s.repository.List(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error listing baskets: %v", err)
 	}
@@ -71,15 +72,15 @@ func (s Service) ListBaskets() ([]Basket, error) {
 }
 
 // GetBasketById retrieves a basket by its ID
-func (s Service) GetBasketById(id types.ID) (Basket, error) {
-	basket, err := s.repository.GetCachedBasket(id)
+func (s Service) GetBasketById(ctx context.Context, id types.ID) (Basket, error) {
+	basket, err := s.repository.GetCachedBasket(ctx, id)
 	if err == nil {
 		// Basket found in cache
 		return basket, nil
 	}
 
 	// If not found in cache, retrieve from PostgreSQL
-	basketList, err := s.repository.List()
+	basketList, err := s.repository.List(ctx)
 	if err != nil {
 		return Basket{}, fmt.Errorf("error retrieving basket: %v", err)
 	}
@@ -98,8 +99,8 @@ func (s Service) GetBasketItemsById(id uint) ([]BasketItem, error) {
 }
 
 // CacheBasket caches a basket in Redis
-func (s Service) CacheBasket(basket Basket) error {
-	err := s.repository.CacheBasket(basket)
+func (s Service) CacheBasket(ctx context.Context, basket Basket) error {
+	err := s.repository.CacheBasket(ctx, basket)
 	if err != nil {
 		return fmt.Errorf("error caching basket: %v", err)
 	}
@@ -107,8 +108,8 @@ func (s Service) CacheBasket(basket Basket) error {
 }
 
 // GetCachedBasket retrieves a basket from Redis by its ID
-func (s Service) GetCachedBasket(id types.ID) (Basket, error) {
-	basket, err := s.repository.GetCachedBasket(id)
+func (s Service) GetCachedBasket(ctx context.Context, id types.ID) (Basket, error) {
+	basket, err := s.repository.GetCachedBasket(ctx, id)
 	if err != nil {
 		return Basket{}, fmt.Errorf("error retrieving cached basket: %v", err)
 	}
