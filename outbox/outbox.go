@@ -1,17 +1,27 @@
 package outbox
 
+/*
+This solution only works with single container
+We should add some distributed synchronization solution to handle workload
+*/
+
 import (
-	"database/sql"
+	"context"
 	"fmt"
-	"git.gocasts.ir/remenu/beehive/event"
-	"github.com/go-co-op/gocron"
 	"log"
 	"time"
+
+	"git.gocasts.ir/remenu/beehive/types"
+
+	"git.gocasts.ir/remenu/beehive/event"
+	"github.com/go-co-op/gocron"
 )
 
 type Repository interface {
-	Update(outboxEvent Event) (sql.Result, error)
-	GetByIsPublished(isPublished bool) ([]Event, error)
+	UpdatePublished(ctx context.Context, eventIDs []types.ID, publishedAt time.Time) error
+	UpdateUnpublished(ctx context.Context, eventIDs []types.ID, lastRetriedAt time.Time) error
+	UnpublishedCount(ctx context.Context, retryThreshold int64) (int64, error)
+	GetUnPublished(ctx context.Context, offset, limit, retryThreshold int) ([]Event, error)
 }
 
 type Scheduler struct {
@@ -45,26 +55,31 @@ func (s Scheduler) Start(done <-chan bool) {
 
 func (s Scheduler) PublishOutBoxEvents() {
 	log.Println("starting outbox publisher..")
-	unPublishedOutBoxEvents, err := s.repository.GetByIsPublished(false)
+
+	unPublishedOutBoxEvents, err := s.repository.GetUnPublished(context.Background(),
+		0, s.config.BatchSize, s.config.RetryThreshold)
 	if err != nil {
 		log.Printf("Error fetching OutBoxEvents: %s", err)
 	}
 
-	for _, eventMessage := range unPublishedOutBoxEvents {
+	outBoxEventsIDs := make([]types.ID, 0)
+
+	for _, outBoxEvent := range unPublishedOutBoxEvents {
 		err := s.publisher.Publish(event.Event{
-			Topic:   eventMessage.Topic,
-			Payload: eventMessage.Payload,
+			Topic:   outBoxEvent.Topic,
+			Payload: outBoxEvent.Payload,
 		})
 		if err != nil {
 			log.Printf("Error publishing event: %s", err)
 		}
-
-		eventMessage.IsPublished = true
-		_, err = s.repository.Update(eventMessage)
-		if err != nil {
-			log.Printf("Error updating event: %s", err)
-		}
-
-		log.Printf("Published event: %s successfully", eventMessage.Topic)
+		outBoxEventsIDs = append(outBoxEventsIDs, outBoxEvent.ID)
 	}
+
+	err = s.repository.UpdatePublished(context.Background(), outBoxEventsIDs, time.Now())
+	if err != nil {
+		log.Printf("Error updating event: %s", err)
+	}
+
+	log.Printf("Published events successfully with IDS: %v", outBoxEventsIDs)
+
 }
