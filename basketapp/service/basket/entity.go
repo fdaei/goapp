@@ -33,7 +33,9 @@ type BasketItem struct {
 
 // FoodOptionFoodOption represents a customizable option for a food item
 type FoodOption struct {
-	OptionName  string      `json:"option_name"`  // Name of the food option (e.g., "Extra Cheese")
-	OptionPrice types.Price `json:"option_price"` // Price for the option (e.g., 1000 Toman for extra cheese)
-	Description string      `json:"description"`  // Optional description for the option
+	ID           types.ID    `json:"id"`             // Food Option unique ID
+	BasketItemID types.ID    `json:"basket_item_id"` // Reference to the parent basket item
+	OptionName   string      `json:"option_name"`    // Name of the food option (e.g., "Extra Cheese")
+	OptionPrice  types.Price `json:"option_price"`   // Price for the option (e.g., 1000 Toman for extra cheese)
+	Description  string      `json:"description"`    // Optional description for the option
 }
