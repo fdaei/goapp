@@ -13,6 +13,7 @@ type Basket struct {
 	RestaurantID   types.ID     `json:"restaurant_id"`   // ID of the restaurant for the order
 	ExpirationTime time.Time    `json:"expiration_time"` // Expiration date for the basket
 	Items          []BasketItem `json:"items"`           // One-to-many relationship with BasketItem
+	Status         BasketStatus `json:"status"`          // Status of the basket
 	CreatedAt      time.Time    `json:"created_at"`
 	UpdatedAt      time.Time    `json:"updated_at"`
 	IsDeleted      bool         `json:"is_deleted"`
@@ -39,3 +40,17 @@ type FoodOption struct {
 	OptionPrice  types.Price `json:"option_price"`   // Price for the option (e.g., 1000 Toman for extra cheese)
 	Description  string      `json:"description"`    // Optional description for the option
 }
+
+// BasketStatus represents the possible statuses of a basket
+type BasketStatus string
+
+const (
+	StatusNotRegistered         BasketStatus = "not_registered"
+	StatusNotRegisteredCanceled BasketStatus = "not_registered_canceled"
+	StatusRegistered            BasketStatus = "registered"
+	StatusAccepted              BasketStatus = "accepted"
+	StatusNotAccepted           BasketStatus = "not_accepted"
+	StatusAcceptedCanceled      BasketStatus = "accepted_canceled"
+	StatusAcceptedNotPaid       BasketStatus = "accepted_not_paid"
+	StatusPaid                  BasketStatus = "paid"
+)
