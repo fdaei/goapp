@@ -1,7 +1,7 @@
 
 -- +migrate Up
 CREATE TABLE basket_items (
-    id BIGINT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     basket_id BIGINT REFERENCES baskets(id) ON DELETE CASCADE,  
     food_id BIGINT NOT NULL,  
     food_name TEXT NOT NULL,  
