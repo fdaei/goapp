@@ -6,7 +6,7 @@ postgres_db:
   host: localhost
   port: 5433
   user: "basket_admin"
-  password: "password123"
+  password: "Pass@Admin#8273"
   db_name: basket_db
   ssl_mode: disable
   max_idle_conns: 15

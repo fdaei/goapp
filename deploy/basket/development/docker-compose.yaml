@@ -18,7 +18,8 @@ services:
     networks:
       - remenu_network
 
-  basket-db:  
+  basket-db:
+    
     image: postgres:latest
     container_name: remenu-basket-db
     environment:

@@ -13,10 +13,10 @@ type Basket struct {
 	RestaurantID   types.ID     `json:"restaurant_id"`   // ID of the restaurant for the order
 	ExpirationTime time.Time    `json:"expiration_time"` // Expiration date for the basket
 	Items          []BasketItem `json:"items"`           // One-to-many relationship with BasketItem
-	Status         BasketStatus `json:"status"`          // Status of the basket
 	CreatedAt      time.Time    `json:"created_at"`
 	UpdatedAt      time.Time    `json:"updated_at"`
 	IsDeleted      bool         `json:"is_deleted"`
+	Status         BasketStatus `json:"status"`          // Status of the basket
 }
 
 // BasketItem represents the items in the basket

@@ -2,6 +2,7 @@ package basket
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"git.gocasts.ir/remenu/beehive/types"
@@ -9,14 +10,22 @@ import (
 	"git.gocasts.ir/remenu/beehive/event"
 )
 
+var (
+	ErrRestaurantMismatch  = errors.New("existing basket belongs to a different restaurant")
+	ErrBasketNotRegistered = errors.New("the basket is already registered and cannot be modified")
+)
+
 // Repository defines the operations related to basket, supporting both Redis and PostgreSQL
 type Repository interface {
+	FindActiveBasket(ctx context.Context, userID types.ID) (Basket, error)
+	AddItemToBasket(ctx context.Context, basketID types.ID, item BasketItem) error
 	Create(ctx context.Context, basket Basket) (types.ID, error)
 	Update(ctx context.Context, basket Basket) (types.ID, error)
 	Delete(ctx context.Context, id types.ID) (bool, error)
 	List(ctx context.Context) ([]Basket, error)
 	CacheBasket(ctx context.Context, basket Basket) error
 	GetCachedBasket(ctx context.Context, id types.ID) (Basket, error)
+	
 }
 
 // Service is the concrete implementation of Service
@@ -32,16 +41,31 @@ func NewService(repo Repository) Service {
 }
 
 // CreateBasket creates a new basket
-func (s Service) CreateBasket(ctx context.Context, basket Basket) (uint, error) {
-	id, err := s.repository.Create(ctx, basket)
+func (s Service) AddToBasket(ctx context.Context, basket Basket) (types.ID, error) {
+	existingBasket, err := s.repository.FindActiveBasket(ctx, basket.UserID)
 	if err != nil {
-		return 0, fmt.Errorf("error creating basket: %v", err)
+		return 0, fmt.Errorf("error retrieving basket: %v", err)
 	}
 
-	if err != nil {
-		return 0, fmt.Errorf("error retrieving last insert ID: %v", err)
+	if existingBasket.ID != 0 {
+		if existingBasket.RestaurantID != basket.RestaurantID {
+			return 0, ErrRestaurantMismatch
+		}
+
+		if err := s.repository.AddItemToBasket(ctx, existingBasket.ID, basket.Items[0]); err != nil {
+			return 0, fmt.Errorf("error adding item to existing basket: %v", err)
+		}
+
+		return existingBasket.ID, nil
 	}
-	return uint(id), nil
+
+	newBasketID, err := s.repository.Create(ctx, basket)
+	if err != nil {
+		return 0, fmt.Errorf("error creating new basket: %v", err)
+	}
+
+	return newBasketID, nil
+
 }
 
 // UpdateBasket updates an existing basket
