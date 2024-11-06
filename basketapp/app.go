@@ -15,23 +15,28 @@ import (
 
 type Application struct {
 	Ctx           context.Context
+	BasketRepo    basket.Repository
 	BasketSvc     basket.Service
-	OrderSvc      order.Service
 	BasketHandler http.Handler
-	BasketRepo    repository.BasketRepo
-	HTTPServer    *http.Server
+	OrderSvc      order.Service
+	HTTPServer    http.Server
 	BasketCfg     Config
-	basketLogger  *slog.Logger
+	BasketLogger  *slog.Logger
 }
 
 func Setup(ctx context.Context, config Config, conn *postgresql.Database) Application {
 	// create application struct with all dependencies(repo, broker, delivery)
-	// register routes
+	basketRepo := repository.NewBasketRepo(conn.DB)
+	basketSvc := basket.NewService(basketRepo)
+	basketHandler := http.NewHandler(basketSvc)
 
 	return Application{
 		Ctx:          ctx,
-		HTTPServer:   http.New(*httpserver.New(config.Server)),
-		basketLogger: logger.L(),
+		BasketRepo:   basketRepo,
+		BasketSvc:    basketSvc,
+		BasketHandler: basketHandler,
+		HTTPServer:   http.New(httpserver.New(config.Server), basketHandler),
+		BasketLogger: logger.L(),
 		BasketCfg:    config,
 	}
 }

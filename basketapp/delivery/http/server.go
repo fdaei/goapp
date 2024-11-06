@@ -9,16 +9,17 @@ import (
 
 type Server struct {
 	HTTPServer httpserver.Server
-	// TODO: add handlers struct heres in futures
+	Handler    Handler
 }
 
-func New(server httpserver.Server) *Server {
-	return &Server{
+func New(server httpserver.Server, handler Handler) Server {
+	return Server{
 		HTTPServer: server,
+		Handler:    handler,
 	}
 }
 
-func (s *Server) Serve() {
+func (s Server) Serve() {
 	s.RegisterRoutes()
 
 	// Start server
@@ -28,10 +29,17 @@ func (s *Server) Serve() {
 	}
 }
 
-func (s *Server) RegisterRoutes() {
+func (s Server) RegisterRoutes() {
 	// TODO: add middleware
 	// TODO: register swagger
 
-	// Routes
+	// Define Routes
+
+	//health check
 	s.HTTPServer.Router.GET("/health-check", s.healthCheck)
+
+	// basket group
+	basketGroup := s.HTTPServer.Router.Group("/basket")
+	// basket CRUD
+	basketGroup.POST("/add", s.Handler.AddToBasket)
 }

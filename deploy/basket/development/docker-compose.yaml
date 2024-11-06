@@ -18,13 +18,14 @@ services:
     networks:
       - remenu_network
 
-  basket-db:  
+  basket-db:
+    
     image: postgres:latest
     container_name: remenu-basket-db
     environment:
       POSTGRES_DB: basket_db
       POSTGRES_USER: "basket_admin"
-      POSTGRES_PASSWORD: "password123"
+      POSTGRES_PASSWORD: "Pass@Admin#8273"
     ports:
       - "5433:5432"  
     volumes:

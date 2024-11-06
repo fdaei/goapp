@@ -21,25 +21,25 @@ type Server struct {
 	Config Config
 }
 
-func New(cfg Config) *Server {
+func New(cfg Config) Server {
 	e := echo.New()
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: cfg.Cors.AllowOrigins,
 	}))
 
-	return &Server{
+	return Server{
 		Router: e,
 		Config: cfg,
 	}
 }
 
 // register custom handler
-func (s *Server) RegisterHandler(route string, handler echo.HandlerFunc) {
+func (s Server) RegisterHandler(route string, handler echo.HandlerFunc) {
 	s.Router.GET(route, handler)
 }
 
 // start server
-func (s *Server) Start() error {
+func (s Server) Start() error {
 	return s.Router.Start(fmt.Sprintf(":%d", s.Config.Port))
 }
